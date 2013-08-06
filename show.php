@@ -1,4 +1,5 @@
 <?php
+error_reporting(0);
 # Datenbankverbindung vorkonfigurieren
 include('connect.inc.php');
 
@@ -18,29 +19,51 @@ return $arResults;
 
 
 # Definition der Umsatzkategorien
-$arTankstellen = array('JET', 'ARAL', 'TOTAL', 'HEM', 'AGIP', 'BFT');
+$arTankstellen = array('JET', 'ARAL', 'TOTAL', 'HEM', 'AGIP', 'BFT', 'Gulf');
+$arBargeld = array('GA NR');
+$arEinkaufen = array('KAUFLAND', 'REWE', 'HIT', 'KONSUM', 'PERFETTO');
 $i = 0;
-foreach($arTankstellen as $Tankstellen)
-  { $arAlles[$i] = search("destination", $Tankstellen); $i++;
+if($_GET['suchenach'] == 'Tankstellen')
+  {
+    foreach($arTankstellen as $Tankstellen)
+      { $arAlles[$i] = search("destination", $Tankstellen); $i++; }
   }
+elseif($_GET['suchenach'] == 'Bargeld')
+  {
+    foreach($arBargeld as $Bargeld)
+      { $arAlles[$i] = search("destination", $Bargeld); $i++; }
+  }
+elseif($_GET['suchenach'] == 'Einkauf')
+  {
+    foreach($arEinkaufen as $Einkauf)
+      { $arAlles[$i] = search("destination", $Einkauf); $i++; }
+  }
+
 # Summe der Rechnung einer Klasse
 foreach($arAlles as $Elements){
   foreach($Elements as $Kinder)
     { $Summe += $Kinder['betrag']; }
 }
-echo "Summe: ".$Summe;
+echo "Summe: ".$Summe."\n";
 
 # Mainfunktion 
-#$suchenach = "";
-#if($_GET['suchenach']) { $suchenach = $_GET['suchenach']; }
-#echo $suchenach;
-#if($suchenach != "")
-#{
-#$arResults = search("destination", $suchenach); echo "<pre>"; print_r($arResults); echo "</pre>";
-#echo "<pre>"; print_r($arAlles); echo "</pre>";
-#}
-#echo "<html>";
-#echo "<form action='show.php'>Kategorienr: <input name='suchenach' type='text' size='30'></input></form>";
-#echo "</html>";
-# print_r($arResults);
+$suchenach = "";
+if($_GET['suchenach']) { $suchenach = $_GET['suchenach']; }
+echo $suchenach;
+if($suchenach != "")
+{
+$arResults = search("destination", $suchenach); echo "<pre>"; print_r($arResults); echo "</pre>";
+echo "<pre>"; print_r($arAlles); echo "</pre>";
+}
+echo "<html>";
+echo "<form action='show.php'>Kategorien: <input name='suchenach' type='text' size='30'></input><br>";
+echo "Ab: T <input name='vonTag' type='text' size='5'></input>";
+echo "M <input name='vonMonat' type='text' size='5'</input>";
+echo "J <input name='vonJahr' type='text' size='5'</input><br>";
+echo "Bis: T <input name='bisTag' type='text' size='5'></input>";
+echo "M <input name='bisMonat' type='text' size='5'</input>";
+echo "J <input name='bisJahr' type='text' size='5'</input><br>";
+echo "</form>";
+echo "</html>";
+print_r($arResults);
 ?>

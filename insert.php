@@ -5,7 +5,7 @@ include('connect.inc.php');
 # setzen des einzulesenden Files bald aus der kommandozeile
 $first_param = $_SERVER['argv'][1];
 echo $first_param;
-$csvfile = "20130210-1801133650-umsatz_inverted.csv";
+$csvfile = "20130806-1801133650-umsatz_inverted.csv";
 
 # SQL Syntax um die Umsaetze Tabelle zu erstellen 
 //create table umsaetze ( umsatz_id INT AUTO_INCREMENT PRIMARY KEY NOT NULL, datum VARCHAR(15), destination VARCHAR(30), bemerkung VARCHAR(50), betrag INT );
@@ -14,7 +14,7 @@ $csvfile = "20130210-1801133650-umsatz_inverted.csv";
 function intodatabase($datum,$betrag,$kontakt,$bemerkung){
 $query = "INSERT INTO umsaetze SET datum='$datum',betrag='$betrag',destination='$kontakt',bemerkung='$bemerkung'";
 echo $query."\n";
-#$result = mysql_query($query);
+$result = mysql_query($query);
 }
 
 # Funktion die die Datensätze an der Richtigen stelle einfügt
