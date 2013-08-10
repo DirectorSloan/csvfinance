@@ -29,7 +29,10 @@ return $arResults;
 # Definition der Umsatzkategorien
 $arTankstellen = array('JET', 'ARAL', 'TOTAL', 'HEM', 'AGIP', 'BFT', 'Gulf');
 $arBargeld = array('GA NR');
-$arEinkaufen = array('KAUFLAND', 'REWE', 'HIT', 'KONSUM', 'PERFETTO', 'AMAZON');
+$arEinkaufen = array('KAUFLAND', 'REWE', 'HIT', 'KONSUM', 'PERFETTO', 'MUELLER', 'MARKTKAUF');
+$arShoppen = array('AMAZON', 'ADVANZIA', 'MEDIA MARKT', 'SATURN', 'C&A', 'VERO MODA', 'H&M', 'IKEA', 'RUNNERS');
+$arFixkosten = array('RUNDFUNK ARD', 'KABEL DEU', 'HUK', 'LEIPZIGER WOHNUNGS', 'E-PLUS', 'DEVK', 'TREUHANDKONTO');
+$arKomplett = array('%');
 $i = 0;
 
 function checkthedate($Kinder, $vonTag, $vonMonat, $vonJahr, $bisTag, $bisMonat, $bisJahr){
@@ -75,9 +78,27 @@ elseif($_GET['suchenach'] == 'Einkauf')
     foreach($arEinkaufen as $Einkauf)
       { $arAlles[$i] = search("destination", $Einkauf); $i++; }
   }
+elseif($_GET['suchenach'] == 'Komplett')
+  {
+    foreach($arKomplett as $Komplett)
+	    { $arAlles[$i] = search("destination", $Komplett); $i++; }
+  }
+elseif($_GET['suchenach'] == 'Shoppen')
+  {
+    foreach($arShoppen as $Shoppen)
+      { $arAlles[$i] = search("destination", $Shoppen); $i++; }
+  }
+elseif($_GET['suchenach'] == 'Fixkosten')
+  {
+    foreach($arFixkosten as $Fixkosten)
+      { $arAlles[$i] = search("destination", $Fixkosten); $i++; }
+  }
+
 
 # Summe der Rechnung einer Klasse
-foreach($arAlles as $Elements){
+if($_GET['calculate'])
+  {
+ foreach($arAlles as $Elements){
   foreach($Elements as $Kinder)
     { 
      $return_datum = checkthedate($Kinder, $vonTag, $vonMonat, $vonJahr, $bisTag, $bisMonat, $bisJahr);
@@ -92,6 +113,29 @@ foreach($arAlles as $Elements){
 }
 echo "\n";
 echo "Summe: ".$Summe." Euro \n";
+  }
+
+# Visualisierungsmodul
+if($_GET['visualize'])
+  {
+$im = ImageCreate (1200, 3600)
+      or die ("Kann keinen neuen GD-Bild-Stream erzeugen");
+$background_color = ImageColorAllocate ($im, 200, 200, 200);
+$text_color = ImageColorAllocate ($im, 233, 14, 91);
+foreach($arAlles as $Elements) {
+  foreach($Elements as $Kinder) {
+   $betrag = $Kinder['betrag'];
+#   echo $betrag."<br>";
+   ImageRectangle ($im, $i, 0, $i, $betrag, $text_color);
+   $i++;
+  }
+}
+ImagePNG ($im, 'test/test.png');
+echo "<img src='test/test.png'>BILD</img>";
+#system("rm -f test/test.png");
+
+}
+
 
 # Mainfunktion 
 $suchenach = "";
@@ -107,7 +151,12 @@ echo "<form action='show.php'>Kategorien: <select name='suchenach' size='1'><br>
 echo "<option "; if($suchenach == 'Tankstellen') echo "selected "; echo ">Tankstellen</option>";
 echo "<option "; if($suchenach == 'Einkauf') echo "selected "; echo ">Einkauf</option>";
 echo "<option "; if($suchenach == 'Bargeld') echo "selected "; echo ">Bargeld</option>";
+echo "<option "; if($suchenach == 'Shoppen') echo "selected "; echo ">Shoppen</option>";
+echo "<option "; if($suchenach == 'Fixkosten') echo "selected "; echo ">Fixkosten</option>";
+echo "<option "; if($suchenach == 'Komplett') echo "selected "; echo ">Komplett</option>";
 echo "</select><br>";
+echo "<input name='calculate' type='checkbox'>Rechnen</input>";
+echo "<input name='visualize' type='checkbox'>Visualisieren</input><br>";
 echo "Ab: T <select name='vonTag' size=1>"; for($i=1;$i<=31;$i++) { echo "<option "; if($vonTag == $i) echo "selected "; echo ">".$i."</option>"; } echo "</select>";
 echo "M <select name='vonMonat' size=1>"; for($j=1;$j<=12;$j++) { echo "<option "; if($vonMonat == $j) echo "selected "; echo ">".$j."</option>"; } echo "</select>";
 echo "J <select name='vonJahr' size=1>"; for($k=11;$k<=14;$k++) { echo "<option "; if($vonJahr == $k) echo "selected "; echo ">".$k."</option>"; } echo "</select><br>";
