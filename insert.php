@@ -5,7 +5,10 @@ include('connect.inc.php');
 # setzen des einzulesenden Files bald aus der kommandozeile
 $first_param = $_SERVER['argv'][1];
 echo $first_param;
-$csvfile = "20130806-1801133650-umsatz_inverted.csv";
+$original_csv = $first_param;
+$inverted_csv = "inverted_".$original_csv;
+$retval = system("tac $original_csv > '$inverted_csv'");
+$csvfile = $inverted_csv;
 
 # SQL Syntax um die Umsaetze Tabelle zu erstellen 
 //create table umsaetze ( umsatz_id INT AUTO_INCREMENT PRIMARY KEY NOT NULL, datum VARCHAR(15), destination VARCHAR(30), bemerkung VARCHAR(50), betrag INT );

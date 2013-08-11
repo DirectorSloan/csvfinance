@@ -29,8 +29,8 @@ return $arResults;
 # Definition der Umsatzkategorien
 $arTankstellen = array('JET', 'ARAL', 'TOTAL', 'HEM', 'AGIP', 'BFT', 'Gulf');
 $arBargeld = array('GA NR');
-$arEinkaufen = array('KAUFLAND', 'REWE', 'HIT', 'KONSUM', 'PERFETTO', 'MUELLER', 'MARKTKAUF');
-$arShoppen = array('AMAZON', 'ADVANZIA', 'MEDIA MARKT', 'SATURN', 'C&A', 'VERO MODA', 'H&M', 'IKEA', 'RUNNERS');
+$arEinkaufen = array('KAUFLAND', 'REWE', 'HIT', 'KONSUM', 'PERFETTO', 'MUELLER', 'MARKTKAUF', 'NETTO', 'NORMA');
+$arShoppen = array('AMAZON', 'ADVANZIA', 'MEDIA MARKT', 'SATURN', 'C&A', 'VERO MODA', 'H&M', 'IKEA', 'RUNNERS', 'KARSTADT', 'LIDL', 'ALDI');
 $arFixkosten = array('RUNDFUNK ARD', 'KABEL DEU', 'HUK', 'LEIPZIGER WOHNUNGS', 'E-PLUS', 'DEVK', 'TREUHANDKONTO');
 $arKomplett = array('%');
 $i = 0;
@@ -115,6 +115,27 @@ echo "\n";
 echo "Summe: ".$Summe." Euro \n";
   }
 
+# Monatslistingsmodul
+if($_GET['month'])
+  {
+
+for($monat=1;$monat<=12;$monat++){
+$SummeMonat = 0;
+ foreach($arAlles as $Elements){
+  foreach($Elements as $Kinder){
+     $return_datum = checkthedate($Kinder, 1, $monat, $vonJahr, 31, $monat, $vonJahr);
+     if($return_datum == TRUE)
+       {
+$SummeMonat += $Kinder['betrag'];
+       }
+   }
+  } 
+echo "<br>Monat: ".$monat." Summe: ".$SummeMonat;
+ }
+}
+
+
+
 # Visualisierungsmodul
 if($_GET['visualize'])
   {
@@ -155,7 +176,8 @@ echo "<option "; if($suchenach == 'Shoppen') echo "selected "; echo ">Shoppen</o
 echo "<option "; if($suchenach == 'Fixkosten') echo "selected "; echo ">Fixkosten</option>";
 echo "<option "; if($suchenach == 'Komplett') echo "selected "; echo ">Komplett</option>";
 echo "</select><br>";
-echo "<input name='calculate' type='checkbox'>Rechnen</input>";
+echo "<input name='calculate' type='checkbox'"; if($_GET['calculate'] == 'on') echo ' checked'; echo ">Rechnen</input>";
+echo "<input name='month' type='checkbox'"; if($_GET['month'] == 'on') echo ' checked'; echo ">Monatsuebersicht</input>";
 echo "<input name='visualize' type='checkbox'>Visualisieren</input><br>";
 echo "Ab: T <select name='vonTag' size=1>"; for($i=1;$i<=31;$i++) { echo "<option "; if($vonTag == $i) echo "selected "; echo ">".$i."</option>"; } echo "</select>";
 echo "M <select name='vonMonat' size=1>"; for($j=1;$j<=12;$j++) { echo "<option "; if($vonMonat == $j) echo "selected "; echo ">".$j."</option>"; } echo "</select>";
