@@ -27,7 +27,7 @@ return $arResults;
 
 
 # Definition der Umsatzkategorien
-$arTankstellen = array('JET', 'ARAL', 'TOTAL', 'HEM', 'AGIP', 'BFT', 'Gulf');
+$arTankstellen = array('JET', 'ARAL', 'TOTAL', 'HEM', 'AGIP', 'BFT', 'GULF', 'STAR');
 $arBargeld = array('GA NR');
 $arEinkaufen = array('KAUFLAND', 'REWE', 'HIT', 'KONSUM', 'PERFETTO', 'MUELLER', 'MARKTKAUF', 'NETTO', 'NORMA');
 $arShoppen = array('AMAZON', 'ADVANZIA', 'MEDIA MARKT', 'SATURN', 'C&A', 'VERO MODA', 'H&M', 'IKEA', 'RUNNERS', 'KARSTADT', 'LIDL', 'ALDI');
