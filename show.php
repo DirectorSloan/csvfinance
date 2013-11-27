@@ -15,7 +15,7 @@ if ($_GET['bisJahr']) {$bisJahr = $_GET['bisJahr']; }
 function search($attribute, $filter){
 if($filter == "") die;
 $select_query = "SELECT * FROM umsaetze ";
-$search_query = "WHERE $attribute LIKE '%$filter%'";
+$search_query = "WHERE $attribute LIKE '%$filter%' ORDER BY 'id'";
 $complete_query = "$select_query$search_query";
 # DEBUG echo "\n".$complete_query."\n";
 $result = mysql_query($complete_query);
@@ -31,7 +31,7 @@ $arTankstellen = array('JET', 'ARAL', 'TOTAL', 'HEM', 'AGIP', 'BFT', 'GULF', 'ST
 $arBargeld = array('GA NR');
 $arEinkaufen = array('KAUFLAND', 'REWE', 'HIT', 'KONSUM', 'PERFETTO', 'MUELLER', 'MARKTKAUF', 'NETTO', 'NORMA');
 $arShoppen = array('AMAZON', 'ADVANZIA', 'MEDIA MARKT', 'SATURN', 'C&A', 'VERO MODA', 'H&M', 'IKEA', 'RUNNERS', 'KARSTADT', 'LIDL', 'ALDI');
-$arFixkosten = array('RUNDFUNK ARD', 'KABEL DEU', 'HUK', 'LEIPZIGER WOHNUNGS', 'E-PLUS', 'DEVK', 'TREUHANDKONTO');
+$arFixkosten = array('RUNDFUNK ARD', 'KABEL DEU', 'HUK', 'LEIPZIGER WOHNUNGS', 'E-PLUS', 'DEVK', 'TREUHANDKONTO', 'STADTWERKE');
 $arKomplett = array('%');
 $i = 0;
 
@@ -93,7 +93,8 @@ elseif($_GET['suchenach'] == 'Fixkosten')
     foreach($arFixkosten as $Fixkosten)
       { $arAlles[$i] = search("destination", $Fixkosten); $i++; }
   }
-
+# Abschließend das Gesamtarray erneut nach Datum sortieren.
+sort($arAlles, SORT_NUMERIC);
 
 # Summe der Rechnung einer Klasse
 if($_GET['calculate'])
@@ -139,16 +140,22 @@ echo "<br>Monat: ".$monat." Summe: ".$SummeMonat;
 # Visualisierungsmodul
 if($_GET['visualize'])
   {
-$im = ImageCreate (1200, 3600)
+$im = ImageCreate (1200, 500)
       or die ("Kann keinen neuen GD-Bild-Stream erzeugen");
 $background_color = ImageColorAllocate ($im, 200, 200, 200);
 $text_color = ImageColorAllocate ($im, 233, 14, 91);
 foreach($arAlles as $Elements) {
   foreach($Elements as $Kinder) {
+# Betrag in Höhe durch fünf
    $betrag = $Kinder['betrag'];
-#   echo $betrag."<br>";
-   ImageRectangle ($im, $i, 0, $i, $betrag, $text_color);
-   $i++;
+$betrag = ($betrag / 5);
+# Timestamp mal zehn
+$Time = 10;
+# absoluter Betrag des Betragwertes
+$abs_betrag = abs($betrag);
+ImageRectangle ($im, $TS_Ges, $abs_betrag, ($TS_Ges + $Time),0 , $text_color);
+echo $TS_Ges."-".$abs_betrag."-".($TS_Ges + $Time)."<br>";
+$TS_Ges += $Time;
   }
 }
 ImagePNG ($im, 'test/test.png');
@@ -164,7 +171,7 @@ if($_GET['suchenach']) { $suchenach = $_GET['suchenach']; }
 #echo $suchenach;
 if($suchenach != "")
 {
-$arResults = search("destination", $suchenach); echo "<pre>"; print_r($arResults); echo "</pre>";
+  $arResults = search("destination", $suchenach); sort($arResults, SORT_NUMERIC); echo "<pre>"; print_r($arResults); echo "</pre>";
 #echo "<pre>"; print_r($arAlles); echo "</pre>";
 }
 echo "<html>";
