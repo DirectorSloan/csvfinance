@@ -1,7 +1,7 @@
 <?php
 error_reporting(0);
 # Datenbankverbindung vorkonfigurieren
-include('connect.inc.php');
+include('sqlite_connect.inc.php');
 
 # Deklarieren der Abzufangenden Variablen
 if ($_GET['vonTag']) {$vonTag = $_GET['vonTag']; }
@@ -14,12 +14,13 @@ if ($_GET['bisJahr']) {$bisJahr = $_GET['bisJahr']; }
 # Such-Rückgabefunktion nach bestimmten Kontakten
 function search($attribute, $filter){
 if($filter == "") die;
-$select_query = "SELECT * FROM umsaetze ";
-$search_query = "WHERE $attribute LIKE '%$filter%' ORDER BY 'id'";
+$select_query = "SELECT rowid,* FROM umsaetze ";
+$search_query = "WHERE $attribute LIKE '%$filter%' ORDER BY 'rowid'";
 $complete_query = "$select_query$search_query";
 # DEBUG echo "\n".$complete_query."\n";
-$result = mysql_query($complete_query);
-while ($row = mysql_fetch_array($result)){
+$db = new BenSQLite();
+$result = $db->query($complete_query);
+while ($row = $result->fetchArray()){
 $arResults[] = $row;
 }
 return $arResults;
@@ -27,10 +28,10 @@ return $arResults;
 
 
 # Definition der Umsatzkategorien
-$arTankstellen = array('JET', 'ARAL', 'TOTAL', 'HEM', 'AGIP', 'BFT', 'GULF', 'STAR');
+$arTankstellen = array('JET', 'ARAL', 'TOTAL', 'HEM', 'AGIP', 'BFT', 'GULF', 'STAR', 'HPV', 'TS LEIPZIG TORGAU');
 $arBargeld = array('GA NR');
-$arEinkaufen = array('KAUFLAND', 'REWE', 'HIT', 'KONSUM', 'PERFETTO', 'MUELLER', 'MARKTKAUF', 'NETTO', 'NORMA');
-$arShoppen = array('AMAZON', 'ADVANZIA', 'MEDIA MARKT', 'SATURN', 'C&A', 'VERO MODA', 'H&M', 'IKEA', 'RUNNERS', 'KARSTADT', 'LIDL', 'ALDI');
+$arEinkaufen = array('KAUFLAND', 'REWE', 'HIT', 'KONSUM', 'PERFETTO', 'MUELLER', 'MARKTKAUF', 'NETTO', 'NORMA', 'ALDI', 'LIDL');
+$arShoppen = array('AMAZON', 'ADVANZIA', 'MEDIA MARKT', 'SATURN', 'C&A', 'VERO MODA', 'H&M', 'IKEA', 'RUNNERS', 'KARSTADT');
 $arFixkosten = array('RUNDFUNK ARD', 'KABEL DEU', 'HUK', 'LEIPZIGER WOHNUNGS', 'E-PLUS', 'DEVK', 'TREUHANDKONTO', 'STADTWERKE');
 $arKomplett = array('%');
 $i = 0;
@@ -94,19 +95,30 @@ elseif($_GET['suchenach'] == 'Fixkosten')
       { $arAlles[$i] = search("destination", $Fixkosten); $i++; }
   }
 # Abschließend das Gesamtarray erneut nach Datum sortieren.
-sort($arAlles, SORT_NUMERIC);
-
+function vergleich($wert_a, $wert_b)
+{
+  $a = $wert_a[0];
+  $b = $wert_b[0];
+  if ( $a == $b) {
+    return 0;
+  }
+  return ($a < $b) ? -1 : +1;
+}
+usort($arAlles, 'vergleich');
+echo "<pre>"; print_r($arAlles); echo "</pre>";
 # Summe der Rechnung einer Klasse
 if($_GET['calculate'])
   {
  foreach($arAlles as $Elements){
   foreach($Elements as $Kinder)
-    { 
+    {
+    
      $return_datum = checkthedate($Kinder, $vonTag, $vonMonat, $vonJahr, $bisTag, $bisMonat, $bisJahr);
 #     echo $return_datum;
      if($return_datum == TRUE)
        { 
-	 echo "ID: ".$Kinder['umsatz_id']." - Betrag: ".$Kinder['betrag']." Euro - Datum: ".$Kinder['datum']." - Destination: ".$Kinder['destination']."<br>";
+	 
+	 echo "ID: ".$Kinder['rowid']." - Betrag: ".$Kinder['betrag']." Euro - Datum: ".$Kinder['datum']." - Destination: ".$Kinder['destination']."<br>";
 	 $Summe += $Kinder['betrag']; 
        }
       
@@ -171,7 +183,7 @@ if($_GET['suchenach']) { $suchenach = $_GET['suchenach']; }
 #echo $suchenach;
 if($suchenach != "")
 {
-  $arResults = search("destination", $suchenach); sort($arResults, SORT_NUMERIC); echo "<pre>"; print_r($arResults); echo "</pre>";
+#  $arResults = search("destination", $suchenach); sort($arResults, SORT_NUMERIC); echo "<pre>"; print_r($arResults); echo "</pre>";
 #echo "<pre>"; print_r($arAlles); echo "</pre>";
 }
 echo "<html>";
