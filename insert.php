@@ -1,6 +1,7 @@
 <?php
 # Datenbank Verbindung herstellen und Datenbank wechseln
-include('connect.inc.php');
+# SQLITE CONNECT
+include('sqlite_connect.inc.php');
 
 # setzen des einzulesenden Files bald aus der kommandozeile
 $first_param = $_SERVER['argv'][1];
@@ -10,14 +11,12 @@ $inverted_csv = "inverted_".$original_csv;
 $retval = system("tac $original_csv > '$inverted_csv'");
 $csvfile = $inverted_csv;
 
-# SQL Syntax um die Umsaetze Tabelle zu erstellen 
-//create table umsaetze ( umsatz_id INT AUTO_INCREMENT PRIMARY KEY NOT NULL, datum VARCHAR(15), destination VARCHAR(30), bemerkung VARCHAR(50), betrag INT );
-
 # Einfache Funktion welche Variablen in die Umsätze DB schreibt
 function intodatabase($datum,$betrag,$kontakt,$bemerkung){
+# Hier ein Query SQLite
 $query = "INSERT INTO umsaetze SET datum='$datum',betrag='$betrag',destination='$kontakt',bemerkung='$bemerkung'";
 echo $query."\n";
-$result = mysql_query($query);
+$result = $db->query($query);
 }
 
 # Funktion die die Datensätze an der Richtigen stelle einfügt
@@ -26,8 +25,8 @@ function check_Insert($csvfile) {
     $var = 0;
   # Query des letzten Eintrags in der DatenBank sortiert nach Datum
     $query_check = "SELECT umsatz_id,datum,destination FROM umsaetze ORDER BY umsatz_id DESC LIMIT 1";
-    $result = mysql_query($query_check);
-  while($arRow = mysql_fetch_array($result))
+    $results = $db->query($query_check);
+   while($arRow = $results->fetchArray())
       {
   # zuweisen der ergebnissatzID auf eine eindimensionale Variablen / Sichern für den Vergleich
   $end_id = $arRow['umsatz_id'];
